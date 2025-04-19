@@ -1,15 +1,9 @@
 package com.medtechsystem;
 
 import java.sql.Connection;
-import java.sql.Date;
 import java.sql.DriverManager;
 import java.sql.Statement;
-
-import com.medtechsystem.model.Appointment;
-import com.medtechsystem.model.Doctor_Details;
-import com.medtechsystem.model.MedicalHistory;
-import com.medtechsystem.model.Patient_Details;
-import com.medtechsystem.model.TreatmentPlan;
+import java.util.Scanner;
 
 public class Main 
 {
@@ -18,123 +12,192 @@ public class Main
         
     try
     {   
-        // connect to Mysql 
+        // Establish connection to MySQL database
 
-        String url = "jdbc:mysql://localhost:3306/";
+        String url = "jdbc:mysql://localhost:3306/patients_database_management_system";
         String user = "root";
         String  pass ="0073";
         Connection con = DriverManager.getConnection(url, user, pass);
+        Statement stm = con.createStatement();
         System.out.println("Connected Succesfully");
 
-        Statement stm = con.createStatement();
-        
-        // create database
+        Scanner sc = new Scanner(System.in);
+        boolean exit = false;
 
-    //    String createDatabaseQuery = "create database Patients_database_management_system";
-    //    stm.executeUpdate(createDatabaseQuery);
-      System.out.println("Database created Succesfully");
-        
-        // use for created database
-        stm.execute("use Patients_database_management_system");
+        while(!exit)
+        {
+            // display the main menu
+          System.out.println("\n ------MEDTECH DATABASE MENU------");
+          System.out.println("1. Create Database");
+          System.out.println("2. Create Tables");
+          System.out.println("3. Insert Sample Data");
+          System.out.println("4. Display All Data");
+          System.out.println("5. Exit");
+          System.out.print("Enter your choice: ");
+          int choice = sc.nextInt();
+          sc.nextLine();  // Consume newline 
 
-        // create table 
-        String createTableQuery = "CREATE TABLE IF NOT EXISTS patients ( "  + "id INT PRIMARY KEY AUTO_INCREMENT ," +
-                                   "first_name varchar(50) ," +
-                                   "last_name Varchar(50)," +
-                                   "age int ," +
-                                   "gender varchar(10)," +
-                                   "contactInfo varchar(120)" + ")";
-        stm.executeUpdate(createTableQuery);
-        System.out.println("Table created Succefully");   
+          switch (choice)
+           {
+            case 1:
+                    // Create database
+                     DatabaseOperation.createDatabase(stm);
+                     break;
+            case 2:
+                    // prompt user to select tables to create
+                     System.out.println("Select tables to create:");
+                     System.out.println("a. Patients");
+                     System.out.println("b. Doctors");
+                     System.out.println("c. Medical History");
+                     System.out.println("d. Appointments");
+                     System.out.println("e. Treatment Plans");
+                    System.out.println("f. All Tables");
+                     System.out.print("Enter your choice: ");
 
-        
-            //  Create Doctor Details Table
-            String createDoctorTable = "CREATE TABLE IF NOT EXISTS doctor_details ("
-                    + "doctor_id INT PRIMARY KEY AUTO_INCREMENT, "
-                    + "firstName VARCHAR(50), "
-                    + "lastName VARCHAR(50), "
-                    + "specialty VARCHAR(100), "
-                    + "contactNumber VARCHAR(20), "
-                    + "email VARCHAR(100)"
-                    + ")";
+                 String tableChoice = sc.nextLine().toLowerCase();
 
-            stm.executeUpdate(createDoctorTable);
-            System.out.println("Doctor Details table created Successfully");
-
-
-            //  Create Treatment Plan Table
-            String createTreatmentPlanTable = "CREATE TABLE IF NOT EXISTS treatment_plan ("
-                    + "planId INT PRIMARY KEY AUTO_INCREMENT, "
-                    + "patientId INT, "
-                    + "description TEXT, "
-                    + "startDate DATE, "
-                    + "endDate DATE"
-                    + ")";
-            stm.executeUpdate(createTreatmentPlanTable);
-            System.out.println("Treatment Plan table created Successfully");
-
-            //  Create Medical History Table
-            String createMedicalHistoryTable = "CREATE TABLE IF NOT EXISTS medical_history ("
-                    + "historyId INT PRIMARY KEY AUTO_INCREMENT, "
-                    + "patientId INT, "
-                    + "diagnosis VARCHAR(255), "
-                    + "treatment VARCHAR(255), "
-                    + "dateOfDiagnosis DATE"
-                    + ")";
-
-            stm.executeUpdate(createMedicalHistoryTable);
-            System.out.println("Medical History table created Successfully");
-
-            // Create Appointment Table
-            String createAppointmentTable = "CREATE TABLE IF NOT EXISTS appointment ("
-                    + "appointmentId INT PRIMARY KEY AUTO_INCREMENT, "
-                    + "patientId INT, "
-                    + "doctorId INT, "
-                    + "appointmentDate DATE, "
-                    + "status VARCHAR(20) DEFAULT 'Scheduled' "
-                    + ")";
-
-            stm.executeUpdate(createAppointmentTable);
-            System.out.println("Appointment table created Successfully");
-
-      System.out.println("-------------Data Inserted on table----------------------------");  
-            
-         //Insert Data  of Patient table 
-
-         Patient_Details p1 = new Patient_Details(0,"Shiv","Shubankar",28,"Male","123-456-789");
-         Patient_Details p2 = new Patient_Details(0,"Ridhi","Sharma",29,"female","798-122-365");
-         p1.insertPatient();
-         p2.insertPatient();
-        
-        //Insert Data  of Doctor table 
-        // Insert first doctor
-        Doctor_Details d1 = new Doctor_Details(0, "Dr. ASHUTOSH", "RANA", "Neurology", "552-022-4444", "Dr.@gmail.com");
-        d1.insertDoctor();
-
-        // Insert second doctor
-        Doctor_Details d2 = new Doctor_Details(0, "Dr. Shima", "RANA", "Neurology", "258-654-7895", "Drshima.@gmail.com");
-        d2.insertDoctor();
+                 switch (tableChoice)
+                  {
+                    case "a":
+                            // create patient table
+                             DatabaseOperation.createPatientsTable(stm);
+                             break;
+                    case "b":
+                             // create Doctor table
+                             DatabaseOperation.createDoctorsTable(stm);
+                             break;
+      
+                    case "c":
+                             // create Medical history table
+                             DatabaseOperation.createMedicalHistoryTable(stm);
+                             break;
+                    case "d":
+                             // create Appointment table
+                             DatabaseOperation.createAppointmentTable(stm);
+                             break;
+                    case "e":
+                              // create Treatment plan table
+                             DatabaseOperation.createTreatmentPlanTable(stm);
+                             break;
+                    case "f":
+                              // create all tables
+                             DatabaseOperation.CreateallTablesData(stm);
+                             break;
+                    default:
+                             //Invalid table  option
+                             System.out.println(" Invalid option.");
+                 }         
+                 break;
+            case 3: 
+                   //prompt user to select data insertion option 
+                   System.out.println("choose the inserted tables");
+                   System.out.println(" A. insertPatientDataFromUser ");
+                     System.out.println("B. insertDoctorDataFromUser");
+                     System.out.println("C. insertMedicalHistoryFromUserInput");
+                     System.out.println("D.insertTreatmentPlanFromUserInput ");
+                     System.out.println("E.insertAppointmentFromUserInput ");
+                    System.out.println("F. All Tables");
+                     System.out.print("Enter your choice: ");
 
 
-        //Insert Data  of Medical Histoty  table 
-        MedicalHistory m = new MedicalHistory(0, 1, "Hypertension", "Medication: Amlodipine 5mg", Date.valueOf("2022-05-10"));
-        m.insertMedicalHistory();
+                   String choice2 = sc.nextLine().toUpperCase();
+                    switch (choice2)
+                     {
+                        case "A": 
+                                  // Insert patient data from user 
+                                  DatabaseOperation.insertPatientDataFromUser();
+                                  break;
+                        case "B":
+                                   // Insert doctor data from user 
+                                  DatabaseOperation.insertDoctorDataFromUser();
+                                  break;     
+                        case "C":
+                                 // Insert medical history data from user
+                                  DatabaseOperation.insertMedicalHistoryFromUserInput();
+                                  break;
+                        case "D":
+                                   // Insert Treatment plan data from user
+                                  DatabaseOperation.insertTreatmentPlanFromUserInput();
+                                  break;
+                        case "E":
+                                    //Insert Appointment data from user
+                                  DatabaseOperation.insertAppointmentFromUserInput();
+                                  break;
+                        case "F":
+                                 //Insert datainto all tables from user
+                                  DatabaseOperation.InsertAllTableData(stm);
+                                  break;
+                                  
+                         default:   
+                                  // invalid insertion option
+                                  System.out.println("INVALID option");
+                                  
+                    }
+                    break;
+            case 4:  
+                   // Prompt user to select data to display
+                  System.out.println("Select data to display");
+                    System.out.println("a. Patients");
+                    System.out.println("b. Doctors");
+                    System.out.println("c. Medical History");
+                    System.out.println("d. Appointments");
+                    System.out.println("e. Treatment Plans");
+                    System.out.println("f. All Tables");
+                    System.out.print("Enter your choice: ");
 
-        //Insert Data  of Appointment table
-        Appointment app = new Appointment(0, 1, 2, Date.valueOf("2023-04-07"),"Schedule");
-        app.insertAppointment();
-        
-        //Insert Data  of Treatmentplan  table 
-        TreatmentPlan t = new TreatmentPlan(0, 1, 0, "Physical Therapy", Date.valueOf("2023-04-23"), Date.valueOf("2023-04-23"));
-        t.insertTreatmentplan();
-
-
-        con.close();
+                   String displayChoice = sc.nextLine().toLowerCase();
+                    switch (displayChoice) 
+                    {
+                        case "a":
+                                 //Display Patients data
+                                 DatabaseOperation.DisplayPatients(stm);
+                                 break;
+                        case "b":
+                                 //Display doctor data
+                                 DatabaseOperation.displayDoctors(stm);
+                                 break;
+                        case "c":
+                                 //Display Medicalhistory data
+                                 DatabaseOperation.displayMedicalHistory(stm);
+                                 break;
+                        case "d":
+                                 //Display Appointment data
+                                 DatabaseOperation.displayAppointments(stm);
+                                 break;
+                        case "e":
+                                 //Display treatment plan data
+                                 DatabaseOperation.displayTreatmentPlans(stm);
+                                 break;
+                        case "f":
+                                  //Display all tables data
+                                  DatabaseOperation.DisplayallTablesData(stm);
+                                  break;
+                        default:
+                                // invalid display option
+                            System.out.println("Invalid option.");
+                    }
+                    break;
+                 
+            case 5:
+                    // exit the appplication 
+                   exit=true;
+                   System.out.println("Existing..... GoodBye!");
+                    break;             
+         default:
+                  // invalid main menu choice 
+                   System.out.println("Invalid choice . Try again");
+                   break;
+        }
     }
-    catch(Exception e)
-    {
+      // Close scanner and database connection
+      sc.close();
+      con.close();          
+    }
+      catch(Exception e)
+     {
+        //  Print stack trace for exceptions
         e.printStackTrace();
-    }
-
+     }
+        
     }
 }
